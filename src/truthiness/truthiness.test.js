@@ -1,5 +1,3 @@
-//@ts-nocheck
-
 test('should be null', () => {
     const n = null;
     expect(n).toBeNull();

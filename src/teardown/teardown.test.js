@@ -1,26 +1,65 @@
 const {
-    createNameDatabase
-} = require('./helper');
+  createNameDatabase,
+  initializeFoodDatabase
+} = require("./helper");
+
+const {
+  connectDatabaseFoods,
+  killConnection,
+  isFoodExist
+} = initializeFoodDatabase('frijoles', 'pan', 'corozo', 'pollo');
 
 let isName;
 let cleanNameDatabase;
 
-beforeEach(() => {
+afterAll(() => {
+  console.log("afterAll");
+});
+
+describe('This could do a simple scope about teardown', () => {
+  beforeEach(() => {
     const container = createNameDatabase();
 
     isName = container.isName;
     cleanNameDatabase = container.clearNameDatabase;
-});
+  });
 
-afterEach(() => {
+  afterEach(() => {
     cleanNameDatabase();
+  });
+
+  test("should name database has carlos", () => {
+    expect(isName("carlos")).toBeTruthy();
+  });
+
+  test("should name database has karina", () => {
+    expect(isName("karina")).toBeTruthy();
+  });
 });
 
-test('should name database has carlos', () => {
-    expect(isName('carlos')).toBeTruthy();
+
+describe('Handle promises on teardown process', () => {
+  beforeAll(() => {
+    return connectDatabaseFoods();
+  });
+
+  afterAll(() => {
+    return killConnection();
+  });
+
+  test('should find a food `pan` on database', () => {
+    expect(isFoodExist('pan')).toBeTruthy();
+  });
 });
 
+describe("Error expected when we try to connect", () => {
 
-test('should name database has karina', () => {
-    expect(isName('karina')).toBeTruthy();
+  afterAll(() => {
+    return killConnection();
+  });
+
+  test('should show exception when we try to find a food', () => {
+    expect(() => isFoodExist('frijoles')).toThrow(/DB/);
+  });
+
 });
